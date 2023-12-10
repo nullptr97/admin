@@ -1,25 +1,53 @@
-import logo from './logo.svg';
-import './App.css';
+import {
+  AppRoot,
+  View,
+  Panel,
+  PanelHeader,
+  SimpleCell,
+  Avatar,
+} from '@vkontakte/vkui'
+import { useEffect, useState } from 'react'
 
-function App() {
+export default function App() {
+  const [users, setUsers] = useState([])
+  const [dataModel, setDataModel] = useState({users: []})
+
+  useEffect(() => {
+    fetch('https://api.melodious.team/users.get')
+       .then((res) => res.json())
+       .then((data) => {
+          console.log(data);
+          setUsers(
+            data.map((x) => {
+            let eachx = {firstName: x.firstName, lastName: x.lastName, imageURL: x.avatarURL}
+            dataModel.users.concat(eachx)
+          })
+        )
+       })
+       .catch((err) => {
+          console.log(err.message);
+       });
+ }, []);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
-}
+    <AppRoot>
+      <View activePanel="main">
+        <Panel id="main">
+          <PanelHeader>api.melodious.team</PanelHeader>
 
-export default App;
+          <Panel id="add_friend">
+          <PanelHeader>
+              Список пользователей
+            </PanelHeader>
+
+            {dataModel.users.map((user) => (
+                <SimpleCell before={<Avatar />}>
+                user.firstName
+              </SimpleCell>
+              ))}
+          </Panel>
+        </Panel>
+      </View>
+    </AppRoot>
+  )
+};
